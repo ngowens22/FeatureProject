@@ -58,6 +58,7 @@
   <ItemGroup>
     <Compile Include="Assets\TutorialInfo\Scripts\Readme.cs" />
     <Compile Include="Assets\Scripts\SimpleCameraController.cs" />
+    <Compile Include="Assets\Scripts\CarController.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

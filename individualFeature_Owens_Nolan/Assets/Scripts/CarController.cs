@@ -4,15 +4,84 @@ using UnityEngine;
 
 public class CarController : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    private const string HORIZONTAL = "Horizontal";
+    private const string VERTICAL = "Vertical";
+
+    private float horizontalInput;
+    private float verticalInput;
+    private float currentSteeringAngle;
+    private float currentBrakeForce;
+    private bool isBraking;
+
+    [SerializeField] private float motorForce;
+    [SerializeField] private float brakeForce;
+    [SerializeField] private float maxSteeringAngle;
+
+    [SerializeField] private WheelCollider frontLeftWheelCollider;
+    [SerializeField] private WheelCollider frontRightWheelCollider;
+    [SerializeField] private WheelCollider backLeftWheelCollider;
+    [SerializeField] private WheelCollider backRightWheelCollider;
+
+    [SerializeField] private Transform frontLeftWheelTransform;
+    [SerializeField] private Transform frontRightWheelTransform;
+    [SerializeField] private Transform backLeftWheelTransform;
+    [SerializeField] private Transform backRightWheelTransform;
+
+
+    private void FixedUpdate()
     {
-        
+        GetInput();
+        HandleMotor();
+        HandleSteering();
+        UpdateWheels();
     }
 
-    // Update is called once per frame
-    void Update()
+    private void GetInput()
     {
-        
+        horizontalInput = Input.GetAxis(HORIZONTAL);
+        verticalInput = Input.GetAxis(VERTICAL);
+        isBraking = Input.GetKey(KeyCode.Space);
     }
+
+    private void HandleMotor()
+    {
+        frontLeftWheelCollider.motorTorque = verticalInput * motorForce;
+        frontRightWheelCollider.motorTorque = verticalInput * motorForce;
+        currentBrakeForce = isBraking ? brakeForce : 0f;
+        Brake();
+    }
+
+    private void HandleSteering()
+    {
+        currentSteeringAngle = maxSteeringAngle * horizontalInput;
+        frontLeftWheelCollider.steerAngle = currentSteeringAngle;
+        frontRightWheelCollider.steerAngle = currentSteeringAngle;
+    }
+
+    private void UpdateWheels()
+    {
+        UpdateSingleWheel(frontLeftWheelCollider, frontLeftWheelTransform);
+        UpdateSingleWheel(frontRightWheelCollider, frontRightWheelTransform);
+        UpdateSingleWheel(backLeftWheelCollider, backLeftWheelTransform);
+        UpdateSingleWheel(backRightWheelCollider, backRightWheelTransform);
+    }
+
+    private void UpdateSingleWheel(WheelCollider wheelCollider, Transform wheelTransform)
+    {
+        Vector3 pos;
+        Quaternion rot;
+        wheelCollider.GetWorldPose(out pos, out rot);
+        wheelTransform.rotation = rot;
+        wheelTransform.position = pos;
+    }
+
+    private void Brake()
+    {
+        frontLeftWheelCollider.brakeTorque = currentBrakeForce;
+        frontRightWheelCollider.brakeTorque = currentBrakeForce;
+        backLeftWheelCollider.brakeTorque = currentBrakeForce;
+        backRightWheelCollider.brakeTorque = currentBrakeForce;
+    }
+
+
 }
